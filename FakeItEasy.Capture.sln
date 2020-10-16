@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeItEasy.Capture", "FakeItEasy.Capture\FakeItEasy.Capture.csproj", "{E3BBB4E5-09E5-40D4-A4E9-23A0F3CF1A2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeItEasy.Capture.Sandbox", "FakeItEasy.Capture.Sandbox\FakeItEasy.Capture.Sandbox.csproj", "{5940BD2D-C962-4B95-A0E3-01D1C85725E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3BBB4E5-09E5-40D4-A4E9-23A0F3CF1A2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BBB4E5-09E5-40D4-A4E9-23A0F3CF1A2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BBB4E5-09E5-40D4-A4E9-23A0F3CF1A2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BBB4E5-09E5-40D4-A4E9-23A0F3CF1A2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
