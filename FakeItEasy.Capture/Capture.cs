@@ -55,6 +55,12 @@ namespace FakeItEasy
             return $"{Values.Count} captured values";
         }
 
+        /// <summary>
+        /// Produces a value of type <typeparamref name="T"/> to configure a call. 
+        /// </summary>
+        /// <param name="capture">The captured value</param>
+        /// <returns>An instance of <typeparamref name="T"/></returns>
+        /// <exception cref="InvalidOperationException">Thrown if the container has been used to configure a call.</exception>
         public static implicit operator T(Capture<T> capture)
         {
             if (!capture._pendingConfiguration)
