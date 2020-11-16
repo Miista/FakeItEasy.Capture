@@ -9,19 +9,19 @@
 	<projectUrl>https://github.com/miista/FakeItEasy.Capture</projectUrl>
 	<license type="expression">MIT</license>
 	<requireLicenseAcceptance>false</requireLicenseAcceptance>
-	<description>An AutoFixture relay that allows AutoFixture to create instances of the collections found in the System.Collections.Immutable namespace.</description>
+	<description>An extension for FakeItEasy which allows for capturing arguments sent to a fake.</description>
 	<copyright>Copyright 2020</copyright>
-	<tags>FakeItEasy fake capture argument unit test</tags>
+	<tags>FakeItEasy fake capture argument parameter value unit test</tags>
 
     <dependencies>
-	  <group targetFramework="netstandard2.0">
+	  <group targetFramework="netstandard1.6">
 		<dependency id="FakeItEasy" version="6.2.1" />
 	  </group>
 	</dependencies>
   </metadata>
 
   <files>
-	<file src="netstandard2.0\*.dll" target="lib\netstandard2.0" />
-	<file src="netstandard2.0\*.xml" target="lib\netstandard2.0" />
+	<file src="netstandard1.6\*.dll" target="lib\netstandard1.6" />
+	<file src="netstandard1.6\*.xml" target="lib\netstandard1.6" />
   </files>
 </package>
