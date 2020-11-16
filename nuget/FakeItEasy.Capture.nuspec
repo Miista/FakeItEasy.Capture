@@ -3,19 +3,21 @@
   <metadata>
 	<id>FakeItEasy.Capture</id>
 	<version>1.0.0-alpha</version>
-	<title>FakeItEasy.Capture: Easily capturing arguments sent to any fake</title>
+	<title>FakeItEasy.Capture: Easily capture arguments sent to any fake</title>
     <authors>Søren Guldmund</authors>
 	<owners>Søren Guldmund</owners>
 	<projectUrl>https://github.com/miista/FakeItEasy.Capture</projectUrl>
+	<repository type="git" url="https://github.com/Miista/FakeItEasy.Capture.git" />
 	<license type="expression">MIT</license>
 	<requireLicenseAcceptance>false</requireLicenseAcceptance>
 	<description>An extension for FakeItEasy which allows for capturing arguments sent to a fake.</description>
 	<copyright>Copyright 2020</copyright>
-	<tags>FakeItEasy fake capture argument parameter value unit test</tags>
+	<tags>FakeItEasy fake it easy capture argument parameter value unit test</tags>
+	<releaseNotes>Initial release.</releaseNotes>
 
     <dependencies>
 	  <group targetFramework="netstandard1.6">
-		<dependency id="FakeItEasy" version="6.2.1" />
+		<dependency id="FakeItEasy" version="4.0.0" />
 	  </group>
 	</dependencies>
   </metadata>

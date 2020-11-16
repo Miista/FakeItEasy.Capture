@@ -38,13 +38,13 @@ namespace FakeItEasy.Capture.Sandbox
                 Console.WriteLine(multipleArguments.Values.Count == 3);
             }
 
-            {
-                // Configuring multiple call using the same Capture
-                var singleArgument = new Capture<string>();
-                var dependency = A.Fake<SomeDependency>();
-                A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
-                A.CallTo(() => dependency.SomeOtherMethod(singleArgument)).DoesNothing(); // This fails
-            }
+            // {
+            //     // Configuring multiple call using the same Capture
+            //     var singleArgument = new Capture<string>();
+            //     var dependency = A.Fake<SomeDependency>();
+            //     A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
+            //     A.CallTo(() => dependency.SomeOtherMethod(singleArgument)).DoesNothing(); // This fails
+            // }
         }
     }
 }
