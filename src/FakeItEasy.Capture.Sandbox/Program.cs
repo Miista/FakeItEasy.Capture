@@ -2,27 +2,48 @@
 
 namespace FakeItEasy.Capture.Sandbox
 {
-    public interface Test
+    public interface SomeDependency
     {
-        bool X(string str);
+        void SomeMethod(string str);
+        void SomeOtherMethod(string str);
     }
     
     class Program
     {
-        
         static void Main(string[] args)
         {
-            var test = A.Fake<Test>();
-            var stringCapture = new Capture<string>();
-            A.CallTo(() => test.X(stringCapture)).Returns(true);
-
-            var b = test.X("Hello, World");
-            var b1 = test.X(", World");
-            
-            Console.WriteLine(b);
-            foreach (var v in stringCapture.Values)
             {
-                Console.WriteLine(v);
+                // Capturing a single argument
+                var singleArgument = new Capture<string>();
+                var dependency = A.Fake<SomeDependency>();
+                A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
+
+                dependency.SomeMethod("I am captured!");
+
+                Console.WriteLine(singleArgument.Value == "I am captured!");
+            
+                dependency.SomeMethod("I am captured!");
+            }
+
+            {
+                // Capturing multiple arguments
+                var multipleArguments = new Capture<string>();
+                var dependency = A.Fake<SomeDependency>();
+                A.CallTo(() => dependency.SomeMethod(multipleArguments)).DoesNothing();
+
+                dependency.SomeMethod("I am captured!");
+                dependency.SomeMethod("I, too, am captured!");
+                dependency.SomeMethod("I am also captured!");
+
+                Console.WriteLine(multipleArguments.Values.Count == 3);
+            }
+
+            {
+                // Configuring multiple call using the same Capture
+                var singleArgument = new Capture<string>();
+                var dependency = A.Fake<SomeDependency>();
+                A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
+                A.CallTo(() => dependency.SomeOtherMethod(singleArgument)).DoesNothing(); // This fails
             }
         }
     }
