@@ -18,8 +18,6 @@ A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
 dependency.SomeMethod("I am captured!");
 
 Console.WriteLine(singleArgument.Value == "I am captured!");
-
-dependency.SomeMethod("I am captured!");
 ```
 
 ### Capture multiple invocations
