@@ -76,7 +76,7 @@ namespace FakeItEasy
             return default(T);
         }
 
-        private void CaptureValue(T value)
+        internal void CaptureValue(T value)
         {
             _values.Add(value);
         }
