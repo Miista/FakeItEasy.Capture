@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using FakeItEasy.Configuration;
 
 // ReSharper disable once CheckNamespace
 namespace FakeItEasy
@@ -70,7 +73,22 @@ namespace FakeItEasy
             }
 
             // Some FakeItEasy trickery to get the parameter value
-            A<T>.That.Matches(input => { capture.CaptureValue(input); return true; }, "Captured parameter " + typeof(T).FullName);
+            A<T>.That.Matches(
+                input =>
+                {
+                    var stackTrace = new System.Diagnostics.StackTrace();
+                    var firstOrDefault = stackTrace.GetFrames()?.Where(f => string.Equals("IsApplicableTo", f.GetMethod().Name) && string.Equals("BuildableCallRule", f.GetMethod().DeclaringType?.Name)).FirstOrDefault();
+                    var stackFrame = stackTrace.GetFrames()[7];
+                    var methodBase = stackFrame.GetMethod();
+                    var methodBody = methodBase.GetMethodBody();
+                    var localVariableInfo = methodBody.LocalVariables.FirstOrDefault();
+                    var localType = localVariableInfo.LocalType;
+                    var localTypeDeclaringType = localType.DeclaringType;
+                    var propertyInfo = localTypeDeclaringType.GetProperties()[3];
+                    var propertyInfoGetMethod = propertyInfo.GetMethod;
+                    capture.CaptureValue(input);
+                    return true;
+                }, "Captured parameter " + typeof(T).FullName);
             capture._pendingConfiguration = false;
 
             return default(T);
@@ -79,6 +97,30 @@ namespace FakeItEasy
         private void CaptureValue(T value)
         {
             _values.Add(value);
+        }
+    }
+    
+    public static class Extensions
+    {
+        public static List<object> Rules { get; } = new List<object>();
+        public static IReturnValueConfiguration<T> WithCapture<T>(this IReturnValueConfiguration<T> self)
+        {
+            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
+            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
+            var propertyInfos = invoke.GetType().GetProperties();
+
+            var x = methodInfo.MakeGenericMethod(self.GetType())
+                .Invoke(null, new object[] { self })
+                .GetType()
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
+                .GetValue(self, null);
+            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
+            Rules.Add(rule);
+            return self;
+        }
+        
+        public static T CastObject<T>(object input) {   
+            return (T) input;   
         }
     }
 }
