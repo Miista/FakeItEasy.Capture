@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using FakeItEasy.Configuration;
-using FakeItEasy.Core;
 
 // ReSharper disable once CheckNamespace
 namespace FakeItEasy
 {
     public interface ICapture
     {
-        void CommitCaptures();
+        void Commit();
+        
+        bool CommitImmediately { get; set; }
     }
     
     /// <summary>
@@ -31,6 +29,8 @@ namespace FakeItEasy
         
         private bool _pendingConfiguration = true;
 
+        public bool CommitImmediately { get; set; } = true;
+        
         /// <summary>
         /// The captured value.
         /// </summary>
@@ -67,7 +67,7 @@ namespace FakeItEasy
             return $"{Values.Count} captured values";
         }
 
-        public void CommitCaptures()
+        public void Commit()
         {
             _values.Add(_valuesPendingCommit.Last());
             _valuesPendingCommit.Clear();
@@ -101,166 +101,14 @@ namespace FakeItEasy
 
         private void CaptureValue(T value)
         {
-            //_values.Add(value);
-            _valuesPendingCommit.Add(value);
-        }
-    }
-    
-    public static class Extensions
-    {
-        public static List<object> Rules { get; } = new List<object>();
-        
-        public static IReturnValueConfiguration<T> WithCapture<T>(this IReturnValueConfiguration<T> self)
-        {
-            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
-            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
-            var propertyInfos = invoke.GetType().GetProperties();
-
-            var x = methodInfo.MakeGenericMethod(self.GetType())
-                .Invoke(null, new object[] { self })
-                .GetType()
-                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
-                .GetValue(self, null);
-            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
-            Rules.Add(rule);
-            return self;
-        }
-
-        public static IAfterCallConfiguredConfiguration<T> WithCapture<T>(
-            this IAfterCallConfiguredConfiguration<T> self,
-            ICapture capture,
-            params ICapture[] captures
-        )
-        {
-            return AddAction(self, capture, captures);
-        }
-
-        public static IRepeatConfiguration<T> WithCapture<T>(this IRepeatConfiguration<T> self, ICapture capture, params ICapture[] captures)
-        {
-            return AddAction(self, capture, captures);
-        }
-        
-        // ReSharper disable once UnusedMethodReturnValue.Global
-        public static IAfterCallConfiguredWithOutAndRefParametersConfiguration<IReturnValueConfiguration<T>> WithCapture<T>(
-            this IAfterCallConfiguredWithOutAndRefParametersConfiguration<IReturnValueConfiguration<T>> self,
-            ICapture capture,
-            params ICapture[] captures
-        )
-        {
-            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
-            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
-            var propertyInfos = invoke.GetType().GetProperties();
-
-            var x = methodInfo.MakeGenericMethod(self.GetType())
-                .Invoke(null, new object[] { self })
-                .GetType()
-                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
-                .GetValue(self, null);
-            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
-
-            var actionsProperty = rule.GetType().GetProperties().FirstOrDefault(p => p.Name == "Actions");
-            var collection = actionsProperty?.GetValue(rule) as ICollection<Action<IFakeObjectCall>> ?? new List<Action<IFakeObjectCall>>();
-
-            collection.Add(Act(new[]{capture}.Concat(captures)));
-            
-            var fakeObjectCallRule = rule as IFakeObjectCallRule;
-
-            Rules.Add(rule);
-            return self;
-        }
-
-        private static T AddAction<T>(T self, ICapture capture, params ICapture[] captures)
-        {
-            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
-            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
-            var propertyInfos = invoke.GetType().GetProperties();
-
-            var x = methodInfo.MakeGenericMethod(self.GetType())
-                .Invoke(null, new object[] { self })
-                .GetType()
-                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
-                .GetValue(self, null);
-            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
-
-            var actionsProperty = rule.GetType().GetProperties().FirstOrDefault(p => p.Name == "Actions");
-            var collection = actionsProperty?.GetValue(rule) as ICollection<Action<IFakeObjectCall>> ?? new List<Action<IFakeObjectCall>>();
-
-            collection.Add(Act(new[]{capture}.Concat(captures)));
-            
-            var fakeObjectCallRule = rule as IFakeObjectCallRule;
-
-            Rules.Add(rule);
-            return self;
-
-        }
-        
-        public static IThenConfiguration<T> WithCapture<T>(this IThenConfiguration<T> self, ICapture capture, params ICapture[] captures)
-        {
-            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
-            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
-            var propertyInfos = invoke.GetType().GetProperties();
-
-            var x = methodInfo.MakeGenericMethod(self.GetType())
-                .Invoke(null, new object[] { self })
-                .GetType()
-                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
-                .GetValue(self, null);
-            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
-
-            var actionsProperty = rule.GetType().GetProperties().FirstOrDefault(p => p.Name == "Actions");
-            var collection = actionsProperty?.GetValue(rule) as ICollection<Action<IFakeObjectCall>> ?? new List<Action<IFakeObjectCall>>();
-
-            collection.Add(Act(new[]{capture}.Concat(captures)));
-            
-            var fakeObjectCallRule = rule as IFakeObjectCallRule;
-
-            Rules.Add(rule);
-            return self;
-        }
-
-        private static Action<IFakeObjectCall> Act(IEnumerable<ICapture> captures)
-        {
-            return (IFakeObjectCall call) =>
+            if (CommitImmediately)
             {
-                foreach (var capture in captures)
-                {
-                    capture.CommitCaptures();
-                }
-            };
-        }
-
-        private class ThenConfiguration<T> : IThenConfiguration<T>
-        {
-            private readonly IThenConfiguration<T> _configuration;
-            
-            public ThenConfiguration(IThenConfiguration<T> configuration)
-            {
-                _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+                _values.Add(value);
             }
-
-            public T Then => _configuration.Then;
-        }
-
-        private class PassThroughRule : IFakeObjectCallRule
-        {
-            private readonly IFakeObjectCallRule _underlyingRule;
-            
-            public PassThroughRule(IFakeObjectCallRule underlyingRule)
+            else
             {
-                _underlyingRule = underlyingRule ?? throw new ArgumentNullException(nameof(underlyingRule));
+                _valuesPendingCommit.Add(value);
             }
-
-            public bool IsApplicableTo(IFakeObjectCall fakeObjectCall)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Apply(IInterceptedFakeObjectCall fakeObjectCall) => _underlyingRule.Apply(fakeObjectCall);
-
-            public int? NumberOfTimesToCall => _underlyingRule.NumberOfTimesToCall;
-        }
-        public static T CastObject<T>(object input) {   
-            return (T) input;   
         }
     }
 }

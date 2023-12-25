@@ -3,7 +3,7 @@ using Xunit;
 
 namespace FakeItEasy.Capture.Tests
 {
-    public class UnitTest1
+    public class CaptureTests
     {
         // ReSharper disable once MemberCanBePrivate.Global
         public interface IClock
@@ -12,7 +12,7 @@ namespace FakeItEasy.Capture.Tests
         }
 
         [Fact]
-        public async Task Commits_only_the_lastest_value_for_complex_rules()
+        public async Task Commits_only_the_latest_value_for_complex_rules()
         {
             // Arrange
             var expectedCapturedValues = new[] { 1, 2, 3 };
