@@ -9,6 +9,8 @@ ProjectSection(SolutionItems) = preProject
 	..\nuget\FakeItEasy.Capture.nuspec = ..\nuget\FakeItEasy.Capture.nuspec
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeItEasy.Capture.Tests", "FakeItEasy.Capture.Tests\FakeItEasy.Capture.Tests.csproj", "{CF71D7E6-A824-4205-A1B1-7A6351186C5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,5 +25,9 @@ Global
 		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5940BD2D-C962-4B95-A0E3-01D1C85725E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF71D7E6-A824-4205-A1B1-7A6351186C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF71D7E6-A824-4205-A1B1-7A6351186C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF71D7E6-A824-4205-A1B1-7A6351186C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF71D7E6-A824-4205-A1B1-7A6351186C5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

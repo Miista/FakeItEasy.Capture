@@ -15,7 +15,7 @@ namespace FakeItEasy.Capture.Sandbox
 
     public interface IClock
     {
-        Task Delay(int n);
+        Task Delay(int n, int x = 0);
     }
 
     public static class ArgumentConstraintMatcherExtensions
@@ -117,6 +117,11 @@ namespace FakeItEasy.Capture.Sandbox
         private void CaptureValue(T value)
         {
             _values.Add(value);
+        }
+
+        internal void CommitValues()
+        {
+            
         }
     }
     
@@ -233,7 +238,8 @@ namespace FakeItEasy.Capture.Sandbox
 
             {
                 var clock = A.Fake<IClock>();
-                var delayCapture = new TmpCaptureWithThrowaway<int>();
+                var delayCapture = new Capture<int>();
+                var delayCapture1 = new Capture<int>();
                 
                 // A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture).IsEqualTo(1)))
                 //     .Returns(Task.CompletedTask).Once();
@@ -242,15 +248,24 @@ namespace FakeItEasy.Capture.Sandbox
                 // A.CallTo(() => clock.Delay(A<int>.That.Not.IsEqualTo(1)))
                 //     .Returns(Task.FromException<Exception>(new Exception()));
 
-                Func<INegatableArgumentConstraintManager<int>, int> f = that => that.IsEqualTo(1);
-                //A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture, f).IsEqualTo(1)))
-                A.CallTo(() => clock.Delay(delayCapture))
-                    .Returns(Task.CompletedTask).NumberOfTimes(2)
-                    .WithCapture()
+                A.CallTo(() => clock.Delay(delayCapture, delayCapture1))
+                    .Returns(Task.CompletedTask)
+                    .NumberOfTimes(1)
+                    .WithCapture(delayCapture, delayCapture1)
                     .Then
-                    .Returns(Task.CompletedTask).NumberOfTimes(1)
-                    .Then
-                    .ReturnsLazily(_ => Task.CompletedTask);
+                    .Returns(Task.CompletedTask)
+                    .NumberOfTimes(1)
+                    .WithCapture(delayCapture, delayCapture1);
+                
+                // Func<INegatableArgumentConstraintManager<int>, int> f = that => that.IsEqualTo(1);
+                // //A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture, f).IsEqualTo(1)))
+                // A.CallTo(() => clock.Delay(delayCapture))
+                //     .Returns(Task.CompletedTask).NumberOfTimes(2)
+                //     .WithCapture()
+                //     .Then
+                //     .Returns(Task.CompletedTask).NumberOfTimes(1)
+                //     .Then
+                //     .ReturnsLazily(_ => Task.CompletedTask);
                 
                 // Måske vi kan finde den regel, som FakeItEasy forsøger at køre.
                 // Så kan vi se, om den regel er applicable.
@@ -261,8 +276,8 @@ namespace FakeItEasy.Capture.Sandbox
                 // Nu kan jeg i det mindste se, hvor mange gange en regel skal kaldes.
                 // Så kan jeg måske selv holde styr på, hvor mange gange reglen er kaldt.
                 await clock.Delay(1);
-                await clock.Delay(1);
-                await clock.Delay(2);
+                //await clock.Delay(1);
+                await clock.Delay(2, 10);
                 //await clock.Delay(3);
                 Console.WriteLine("Hey");
                 
