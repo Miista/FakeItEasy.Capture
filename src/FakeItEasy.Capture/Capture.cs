@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FakeItEasy.Configuration;
+using FakeItEasy.Core;
 
 // ReSharper disable once CheckNamespace
 namespace FakeItEasy
@@ -119,6 +120,43 @@ namespace FakeItEasy
             return self;
         }
         
+        public static IThenConfiguration<T> WithCapture<T>(this IThenConfiguration<T> self)
+        {
+            var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
+            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
+            var propertyInfos = invoke.GetType().GetProperties();
+
+            var x = methodInfo.MakeGenericMethod(self.GetType())
+                .Invoke(null, new object[] { self })
+                .GetType()
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)[0]
+                .GetValue(self, null);
+            var rule = x.GetType().GetProperties()[0].GetValue(x, null);
+
+            var fakeObjectCallRule = rule as IFakeObjectCallRule;
+
+            Rules.Add(rule);
+            return self;
+        }
+
+        private class PassThroughRule : IFakeObjectCallRule
+        {
+            private readonly IFakeObjectCallRule _underlyingRule;
+            
+            public PassThroughRule(IFakeObjectCallRule underlyingRule)
+            {
+                _underlyingRule = underlyingRule ?? throw new ArgumentNullException(nameof(underlyingRule));
+            }
+
+            public bool IsApplicableTo(IFakeObjectCall fakeObjectCall)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Apply(IInterceptedFakeObjectCall fakeObjectCall) => _underlyingRule.Apply(fakeObjectCall);
+
+            public int? NumberOfTimesToCall => _underlyingRule.NumberOfTimesToCall;
+        }
         public static T CastObject<T>(object input) {   
             return (T) input;   
         }
