@@ -63,5 +63,27 @@ namespace FakeItEasy.Capture.Tests
             delayCapture.Values.Should().HaveSameCount(expectedCapturedValues, because: "that is the number of calls made");
             delayCapture.Values.Should().ContainInOrder(expectedCapturedValues, because: "that is the arguments given");
         }
+        
+        [Fact]
+        public async Task Captures_the_correct_values()
+        {
+            // Arrange
+            var expectedCapturedValues = new[] { 1 };
+            
+            var clock = A.Fake<IClock>();
+
+            var delayCapture = new Capture<int>();
+            A.CallTo(() => clock.Delay(delayCapture))
+                .Returns(Task.CompletedTask)
+                .NumberOfTimes(1)
+                .WithCapture(delayCapture);
+            
+            // Act
+            await clock.Delay(1);
+            
+            // Assert
+            delayCapture.Values.Should().HaveSameCount(expectedCapturedValues, because: "that is the number of calls made");
+            delayCapture.Values.Should().ContainInOrder(expectedCapturedValues, because: "that is the arguments given");
+        }
     }
 }
