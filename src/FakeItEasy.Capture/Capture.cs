@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FakeItEasy.Capture;
 
 // ReSharper disable once CheckNamespace
 namespace FakeItEasy
@@ -11,7 +12,7 @@ namespace FakeItEasy
         
         bool CommitImmediately { get; set; }
     }
-    
+
     /// <summary>
     /// Create a container to capture parameter values passed into a FakeItEasy fake.
     /// </summary>
@@ -88,9 +89,12 @@ namespace FakeItEasy
             }
 
             // Some FakeItEasy trickery to get the parameter value
+            Register.RegisterForCapture(capture);
             A<T>.That.Matches(
                 input =>
                 {
+                    var methodInfo = new System.Diagnostics.StackTrace().GetFrames()[8].GetMethod().GetMethodBody().LocalVariables[0].GetType().GetMethods()[6];
+//                    methodInfo.Invoke(null)
                     capture.CaptureValue(input);
                     return true;
                 }, "Captured parameter " + typeof(T).FullName);

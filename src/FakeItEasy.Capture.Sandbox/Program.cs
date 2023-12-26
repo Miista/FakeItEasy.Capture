@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
-using FakeItEasy.Configuration;
-using FakeItEasy.Core;
 
 namespace FakeItEasy.Capture.Sandbox
 {
@@ -250,12 +247,12 @@ namespace FakeItEasy.Capture.Sandbox
 
                 A.CallTo(() => clock.Delay(delayCapture, delayCapture1))
                     .Returns(Task.CompletedTask)
-                    .NumberOfTimes(1)
-                    .WithCapture(delayCapture, delayCapture1)
-                    .Then
-                    .Returns(Task.CompletedTask)
-                    .NumberOfTimes(1)
-                    .WithCapture(delayCapture, delayCapture1);
+                    .NumberOfTimes(2);
+                    // .WithCapture(delayCapture, delayCapture1)
+                    // .Then
+                    // .Returns(Task.CompletedTask)
+                    // .NumberOfTimes(1)
+                    // .WithCapture(delayCapture, delayCapture1);
                 
                 // Func<INegatableArgumentConstraintManager<int>, int> f = that => that.IsEqualTo(1);
                 // //A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture, f).IsEqualTo(1)))

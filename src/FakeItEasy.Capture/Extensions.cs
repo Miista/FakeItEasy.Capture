@@ -9,12 +9,16 @@ namespace FakeItEasy.Capture
 {
     public static class Extensions
     {
+        // ReSharper disable once UnusedMember.Global
         public static IReturnValueConfiguration<T> WithCapture<T>(
             this IReturnValueConfiguration<T> self,
             ICapture capture,
             params ICapture[] captures
         )
         {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (capture == null) throw new ArgumentNullException(nameof(capture));
+            
             return AddAction(self, capture, captures);
         }
 
@@ -25,14 +29,24 @@ namespace FakeItEasy.Capture
             params ICapture[] captures
         )
         {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (capture == null) throw new ArgumentNullException(nameof(capture));
+            
             return AddAction(self, capture, captures);
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static IRepeatConfiguration<T> WithCapture<T>(this IRepeatConfiguration<T> self, ICapture capture, params ICapture[] captures)
-        {
-            return AddAction(self, capture, captures);
-        }
+        // public static IRepeatConfiguration<T> WithCapture<T>(
+        //     this FakeItEasy.Configuration.IRepeatConfiguration<T> self,
+        //     ICapture capture,
+        //     params ICapture[] captures
+        // )
+        // {
+        //     if (self == null) throw new ArgumentNullException(nameof(self));
+        //     if (capture == null) throw new ArgumentNullException(nameof(capture));
+        //     
+        //     return AddAction(self, capture, captures);
+        // }
         
         // ReSharper disable once UnusedMethodReturnValue.Global
         public static IAfterCallConfiguredWithOutAndRefParametersConfiguration<IReturnValueConfiguration<T>> WithCapture<T>(
@@ -41,13 +55,16 @@ namespace FakeItEasy.Capture
             params ICapture[] captures
         )
         {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (capture == null) throw new ArgumentNullException(nameof(capture));
+            
             return AddAction(self, capture, captures);
         }
 
         private static T AddAction<T>(T self, ICapture capture, params ICapture[] captures)
         {
             var methodInfo = typeof(Extensions).GetMethod(nameof(CastObject));
-            var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
+            //var invoke = methodInfo.MakeGenericMethod(self.GetType()).Invoke(null, new object[]{self});
 
             var x = methodInfo.MakeGenericMethod(self.GetType())
                 .Invoke(null, new object[] { self })
@@ -62,7 +79,10 @@ namespace FakeItEasy.Capture
             var allCaptures = new[]{capture}.Concat(captures).ToArray();
             
             // Add action
-            collection.Add(Act(allCaptures));
+            var actionHandler = new ActionHandler(allCaptures);
+            Register.AddHandler(actionHandler);
+            Register.AddRule(rule);
+            collection.Add(actionHandler.Handle);
             
             foreach (var c in allCaptures)
             {
@@ -75,20 +95,30 @@ namespace FakeItEasy.Capture
         
         public static IThenConfiguration<T> WithCapture<T>(this IThenConfiguration<T> self, ICapture capture, params ICapture[] captures)
         {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (capture == null) throw new ArgumentNullException(nameof(capture));
+            
             return AddAction(self, capture, captures);
         }
 
-        private static Action<IFakeObjectCall> Act(IEnumerable<ICapture> captures)
+        public class ActionHandler
         {
-            return call =>
+            private readonly IEnumerable<ICapture> _captures;
+
+            public ActionHandler(IEnumerable<ICapture> captures)
             {
-                foreach (var capture in captures)
+                _captures = captures ?? throw new ArgumentNullException(nameof(captures));
+            }
+
+            public void Handle(IFakeObjectCall call)
+            {
+                foreach (var capture in _captures)
                 {
                     capture.Commit();
                 }
-            };
+            }
         }
-
+        
         public static T CastObject<T>(object input) {   
             return (T) input;   
         }
