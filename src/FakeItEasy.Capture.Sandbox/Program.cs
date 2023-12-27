@@ -315,19 +315,17 @@ namespace FakeItEasy.Capture.Sandbox
                 var clock = A.Fake<IClock>();
                 A.CallTo(() => clock.Delay(capture1, A<int>._))
                     .Invokes(() => secondClock.Invoke("Hello, World!"))
-                    .WithCapture(capture1, capture2)
+                    .WithCapture()
                     .Returns(Task.CompletedTask)
                     .NumberOfTimes(1)
-                    .WithCapture(capture1, capture2)
                     .Then
                     .Invokes(() => secondClock.Invoke("Wee"))
-                    .WithCapture(capture1, capture2)
+                    .WithCapture()
                     .Returns(Task.CompletedTask)
                     .NumberOfTimes(1)
-                    .WithCapture(capture1, capture2)
                     .Then
                     .Invokes(() => secondClock.Invoke("Third!"))
-                    .WithCapture(capture1, capture2)
+                    .WithCapture()
                     .Returns(Task.CompletedTask);
 
                 await clock.Delay(1);

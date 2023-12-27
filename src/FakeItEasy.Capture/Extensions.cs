@@ -43,6 +43,25 @@ namespace FakeItEasy.Capture
             
             return self.Invokes(actionHandler.Handle);
         }
+        
+        public static IReturnValueConfiguration<T> WithCapture<T>(
+            this IReturnValueConfiguration<T> self
+        )
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            
+            // Add action
+            var allCaptures = Register._capturesForRegister.ToArray();
+            
+            foreach (var c in allCaptures)
+            {
+                c.CommitImmediately = false;
+            }
+            
+            var actionHandler = new ActionHandler(allCaptures);
+            
+            return self.Invokes(actionHandler.Handle);
+        }
 
         // ReSharper disable once UnusedMember.Global
         public static IAfterCallConfiguredConfiguration<T> WithCapture<T>(
@@ -101,6 +120,7 @@ namespace FakeItEasy.Capture
             var allCaptures = new[]{capture}.Concat(captures).ToArray();
             
             // Add action
+            throw new InvalidOperationException("Don't use this!");
             var actionHandler = new ActionHandler(allCaptures);
             Register.AddHandler(actionHandler);
             Register.AddRule(rule);

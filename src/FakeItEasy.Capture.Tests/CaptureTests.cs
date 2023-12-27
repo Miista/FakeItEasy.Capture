@@ -9,6 +9,7 @@ namespace FakeItEasy.Capture.Tests
         public interface IClock
         {
             Task Delay(int n);
+            Task DelayEvenMore(string n);
         }
 
         [Fact]
@@ -64,6 +65,58 @@ namespace FakeItEasy.Capture.Tests
         }
         
         [Fact]
+        public async Task Does_not_fail_on_unused_captures()
+        {
+            // Arrange
+            var clock = A.Fake<IClock>();
+
+            var evenMoreCapture = new Capture<string>();
+            A.CallTo(() => clock.DelayEvenMore(evenMoreCapture))
+                .Returns(Task.CompletedTask);
+            
+            var delayCapture = new Capture<int>();
+            A.CallTo(() => clock.Delay(delayCapture))
+                .WithCapture()
+                .Returns(Task.CompletedTask);
+            
+            // Act
+            await clock.DelayEvenMore("Hello, World!");
+            await clock.Delay(1);
+            
+            // Assert
+            delayCapture.Value.Should().Be(1, because: "that is the input given to the call");
+
+            evenMoreCapture.HasValues.Should().BeFalse(because: "there have been no calls to that method");
+        }
+        
+        [Fact]
+        public async Task Does_not_block_other_captures()
+        {
+            // Arrange
+            var clock = A.Fake<IClock>();
+
+            // We *NEED* to register the type+method that is invoked.
+            // That way we can ensure which captures we must commit.
+            var evenMoreCapture = new Capture<string>();
+            A.CallTo(() => clock.DelayEvenMore(evenMoreCapture))
+                .Returns(Task.CompletedTask);
+            
+            var delayCapture = new Capture<int>();
+            A.CallTo(() => clock.Delay(delayCapture))
+                .WithCapture()
+                .Returns(Task.CompletedTask);
+            
+            // Act
+            await clock.DelayEvenMore("Hello, World!");
+            
+            // Assert
+            evenMoreCapture.HasValues.Should().BeTrue(because: "a value has been captured");
+            evenMoreCapture.Value.Should().Be("Hello, World!", because: "that is the input given to the call");
+
+            delayCapture.HasValues.Should().BeFalse(because: "no calls have been made to the method");
+        }
+        
+        [Fact]
         public async Task Captures_values_as_pending_when_used_with_WithCapture()
         {
             // Arrange
@@ -73,16 +126,16 @@ namespace FakeItEasy.Capture.Tests
 
             var delayCapture = new Capture<int>();
             A.CallTo(() => clock.Delay(delayCapture))
+                .WithCapture()
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1)
-                .WithCapture(delayCapture)
                 .Then
+                .WithCapture()
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1)
-                .WithCapture(delayCapture)
                 .Then
-                .ReturnsLazily(_ => Task.CompletedTask)
-                .WithCapture(delayCapture);
+                .WithCapture()
+                .ReturnsLazily(_ => Task.CompletedTask);
             
             // Act
             await clock.Delay(1);
@@ -113,19 +166,17 @@ namespace FakeItEasy.Capture.Tests
             var clock = A.Fake<IClock>();
             A.CallTo(() => clock.Delay(capture1))
                 .Invokes(() => secondClock.Invoke("Hello, World!"))
-                .WithCapture(capture1, capture2)
+                .WithCapture()
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1)
-                .WithCapture(capture1, capture2)
                 .Then
                 .Invokes(() => secondClock.Invoke("Wee"))
-                .WithCapture(capture1, capture2)
+                .WithCapture()
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1)
-                .WithCapture(capture1, capture2)
                 .Then
                 .Invokes(() => secondClock.Invoke("Third!"))
-                .WithCapture(capture1, capture2)
+                .WithCapture()
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -174,13 +225,13 @@ namespace FakeItEasy.Capture.Tests
 
             var delayCapture = new Capture<int>();
             A.CallTo(() => clock.Delay(delayCapture))
+                .WithCapture()
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1)
-                .WithCapture(delayCapture)
                 .Then
+                .WithCapture()
                 .Returns(Task.CompletedTask)
-                .NumberOfTimes(1)
-                .WithCapture(delayCapture);
+                .NumberOfTimes(1);
             A.CallTo(() => clock.Delay(3))
                 .Returns(Task.CompletedTask)
                 .NumberOfTimes(1);
