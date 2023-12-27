@@ -9,6 +9,23 @@ namespace FakeItEasy.Capture
 {
     public static class Extensions
     {
+        // public static TInterface WithCapture<TInterface>(
+        //     this ICallbackConfiguration<TInterface> configuration,
+        //     ICapture capture,
+        //     params ICapture[] captures
+        // )
+        // {
+        //     if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        //     if (capture == null) throw new ArgumentNullException(nameof(capture));
+        //
+        //     var allCaptures = new[]{capture}.Concat(captures).ToArray();
+        //     
+        //     // Add action
+        //     var actionHandler = new ActionHandler(allCaptures);
+        //
+        //     return configuration.Invokes(actionHandler.Handle);
+        // }
+        
         // ReSharper disable once UnusedMember.Global
         public static IReturnValueConfiguration<T> WithCapture<T>(
             this IReturnValueConfiguration<T> self,
@@ -19,7 +36,12 @@ namespace FakeItEasy.Capture
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (capture == null) throw new ArgumentNullException(nameof(capture));
             
-            return AddAction(self, capture, captures);
+            var allCaptures = new[]{capture}.Concat(captures).ToArray();
+            
+            // Add action
+            var actionHandler = new ActionHandler(allCaptures);
+            
+            return self.Invokes(actionHandler.Handle);
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -100,7 +122,7 @@ namespace FakeItEasy.Capture
             
             return AddAction(self, capture, captures);
         }
-
+        
         public class ActionHandler
         {
             private readonly IEnumerable<ICapture> _captures;

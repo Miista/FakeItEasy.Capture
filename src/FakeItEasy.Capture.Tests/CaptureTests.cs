@@ -93,6 +93,54 @@ namespace FakeItEasy.Capture.Tests
             delayCapture.Values.Should().HaveSameCount(expectedCapturedValues, because: "that is the number of calls made");
             delayCapture.Values.Should().ContainInOrder(expectedCapturedValues, because: "that is the arguments given");
         }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public interface ISecondClock
+        {
+            Task Invoke(string s);
+        }
+        
+        [Fact]
+        public async Task Supports_Invokes()
+        {
+            // Arrange
+            var capture1 = new Capture<int>();
+            var capture2 = new Capture<string>();
+
+            var secondClock = A.Fake<ISecondClock>();
+            A.CallTo(() => secondClock.Invoke(capture2))
+                .Returns(Task.CompletedTask);
+            var clock = A.Fake<IClock>();
+            A.CallTo(() => clock.Delay(capture1))
+                .Invokes(() => secondClock.Invoke("Hello, World!"))
+                .WithCapture(capture1, capture2)
+                .Returns(Task.CompletedTask)
+                .NumberOfTimes(1)
+                .WithCapture(capture1, capture2)
+                .Then
+                .Invokes(() => secondClock.Invoke("Wee"))
+                .WithCapture(capture1, capture2)
+                .Returns(Task.CompletedTask)
+                .NumberOfTimes(1)
+                .WithCapture(capture1, capture2)
+                .Then
+                .Invokes(() => secondClock.Invoke("Third!"))
+                .WithCapture(capture1, capture2)
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await clock.Delay(1);
+            await clock.Delay(2);
+            await clock.Delay(3);
+            
+            // Assert
+            capture1.Values.Should().HaveCount(3, because: "that is the number of captures");
+            capture1.Values.Should().Contain(new[] { 1, 2, 3 }, because: "those are the captured values");
+            
+            capture2.Values.Should().HaveCount(3, because: "that is the number of captures");
+            capture2.Values.Should().Contain(new[] { "Hello, World!", "Wee", "Third!" }, because: "those are the captured values");
+            
+        }
         
         [Fact]
         public async Task Has_simple_API()

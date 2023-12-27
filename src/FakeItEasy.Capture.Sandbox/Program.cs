@@ -14,6 +14,11 @@ namespace FakeItEasy.Capture.Sandbox
     {
         Task Delay(int n, int x = 0);
     }
+    
+    public interface ISecondClock
+    {
+        Task Invoke(string s);
+    }
 
     public static class ArgumentConstraintMatcherExtensions
     {
@@ -233,64 +238,64 @@ namespace FakeItEasy.Capture.Sandbox
             //     Console.WriteLine(multipleArguments.Values.Count == 3);
             // }
 
-            {
-                var clock = A.Fake<IClock>();
-                var delayCapture = new Capture<int>();
-                var delayCapture1 = new Capture<int>();
-                
-                // A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture).IsEqualTo(1)))
-                //     .Returns(Task.CompletedTask).Once();
-                // A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture).IsEqualTo(1)))
-                //     .Returns(Task.FromException<Exception>(new Exception())).Once();
-                // A.CallTo(() => clock.Delay(A<int>.That.Not.IsEqualTo(1)))
-                //     .Returns(Task.FromException<Exception>(new Exception()));
-
-                A.CallTo(() => clock.Delay(delayCapture, delayCapture1))
-                    .Returns(Task.CompletedTask)
-                    .NumberOfTimes(2);
-                    // .WithCapture(delayCapture, delayCapture1)
-                    // .Then
-                    // .Returns(Task.CompletedTask)
-                    // .NumberOfTimes(1)
-                    // .WithCapture(delayCapture, delayCapture1);
-                
-                // Func<INegatableArgumentConstraintManager<int>, int> f = that => that.IsEqualTo(1);
-                // //A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture, f).IsEqualTo(1)))
-                // A.CallTo(() => clock.Delay(delayCapture))
-                //     .Returns(Task.CompletedTask).NumberOfTimes(2)
-                //     .WithCapture()
-                //     .Then
-                //     .Returns(Task.CompletedTask).NumberOfTimes(1)
-                //     .Then
-                //     .ReturnsLazily(_ => Task.CompletedTask);
-                
-                // Måske vi kan finde den regel, som FakeItEasy forsøger at køre.
-                // Så kan vi se, om den regel er applicable.
-                // Hvis den ikke er, så "recorder" vi ikke argumentet.
-                
-                // Ovenstående var ikke muligt.
-                // Dog har jeg formået at få fat i en instans af ExpressionCallRule.
-                // Nu kan jeg i det mindste se, hvor mange gange en regel skal kaldes.
-                // Så kan jeg måske selv holde styr på, hvor mange gange reglen er kaldt.
-                await clock.Delay(1);
-                //await clock.Delay(1);
-                await clock.Delay(2, 10);
-                //await clock.Delay(3);
-                Console.WriteLine("Hey");
-                
-                /*
-                 * Næste ide er, at vi kalder "WithCapture" efter reglen er defineret. Fx:
-                 *  .Returns(Task.CompletedTask).NumberOfTimes(2)
-                    .WithCapture()
-                    
-                   Det kræver dog, at vi kan finde frem til RuleBuilder, så vi kan attache os selv som en regel, der skal køres.
-                   Når vi gør det, kan vi tilgå parametre, som metoden kaldes med.
-                   Så kan vi holde styr på:
-                   1. Hvor mange gange metoden er kaldt
-                   2. Hvor mange gange vi er blevet evalueret, og dermed
-                   3. Om vi skal "capture" argumentet
-                 */
-            }
+            // {
+            //     var clock = A.Fake<IClock>();
+            //     var delayCapture = new Capture<int>();
+            //     var delayCapture1 = new Capture<int>();
+            //     
+            //     // A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture).IsEqualTo(1)))
+            //     //     .Returns(Task.CompletedTask).Once();
+            //     // A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture).IsEqualTo(1)))
+            //     //     .Returns(Task.FromException<Exception>(new Exception())).Once();
+            //     // A.CallTo(() => clock.Delay(A<int>.That.Not.IsEqualTo(1)))
+            //     //     .Returns(Task.FromException<Exception>(new Exception()));
+            //
+            //     A.CallTo(() => clock.Delay(delayCapture, delayCapture1))
+            //         .Returns(Task.CompletedTask)
+            //         .NumberOfTimes(2);
+            //         // .WithCapture(delayCapture, delayCapture1)
+            //         // .Then
+            //         // .Returns(Task.CompletedTask)
+            //         // .NumberOfTimes(1)
+            //         // .WithCapture(delayCapture, delayCapture1);
+            //     
+            //     // Func<INegatableArgumentConstraintManager<int>, int> f = that => that.IsEqualTo(1);
+            //     // //A.CallTo(() => clock.Delay(A<int>.That.IsCapturedTo(delayCapture, f).IsEqualTo(1)))
+            //     // A.CallTo(() => clock.Delay(delayCapture))
+            //     //     .Returns(Task.CompletedTask).NumberOfTimes(2)
+            //     //     .WithCapture()
+            //     //     .Then
+            //     //     .Returns(Task.CompletedTask).NumberOfTimes(1)
+            //     //     .Then
+            //     //     .ReturnsLazily(_ => Task.CompletedTask);
+            //     
+            //     // Måske vi kan finde den regel, som FakeItEasy forsøger at køre.
+            //     // Så kan vi se, om den regel er applicable.
+            //     // Hvis den ikke er, så "recorder" vi ikke argumentet.
+            //     
+            //     // Ovenstående var ikke muligt.
+            //     // Dog har jeg formået at få fat i en instans af ExpressionCallRule.
+            //     // Nu kan jeg i det mindste se, hvor mange gange en regel skal kaldes.
+            //     // Så kan jeg måske selv holde styr på, hvor mange gange reglen er kaldt.
+            //     await clock.Delay(1);
+            //     //await clock.Delay(1);
+            //     await clock.Delay(2, 10);
+            //     //await clock.Delay(3);
+            //     Console.WriteLine("Hey");
+            //     
+            //     /*
+            //      * Næste ide er, at vi kalder "WithCapture" efter reglen er defineret. Fx:
+            //      *  .Returns(Task.CompletedTask).NumberOfTimes(2)
+            //         .WithCapture()
+            //         
+            //        Det kræver dog, at vi kan finde frem til RuleBuilder, så vi kan attache os selv som en regel, der skal køres.
+            //        Når vi gør det, kan vi tilgå parametre, som metoden kaldes med.
+            //        Så kan vi holde styr på:
+            //        1. Hvor mange gange metoden er kaldt
+            //        2. Hvor mange gange vi er blevet evalueret, og dermed
+            //        3. Om vi skal "capture" argumentet
+            //      */
+            // }
             
             // {
             //     // Configuring multiple call using the same Capture
@@ -299,6 +304,39 @@ namespace FakeItEasy.Capture.Sandbox
             //     A.CallTo(() => dependency.SomeMethod(singleArgument)).DoesNothing();
             //     A.CallTo(() => dependency.SomeOtherMethod(singleArgument)).DoesNothing(); // This fails
             // }
+
+            {
+                var capture1 = new Capture<int>();
+                var capture2 = new Capture<string>();
+
+                var secondClock = A.Fake<ISecondClock>();
+                A.CallTo(() => secondClock.Invoke(capture2))
+                    .Returns(Task.CompletedTask);
+                var clock = A.Fake<IClock>();
+                A.CallTo(() => clock.Delay(capture1, A<int>._))
+                    .Invokes(() => secondClock.Invoke("Hello, World!"))
+                    .WithCapture(capture1, capture2)
+                    .Returns(Task.CompletedTask)
+                    .NumberOfTimes(1)
+                    .WithCapture(capture1, capture2)
+                    .Then
+                    .Invokes(() => secondClock.Invoke("Wee"))
+                    .WithCapture(capture1, capture2)
+                    .Returns(Task.CompletedTask)
+                    .NumberOfTimes(1)
+                    .WithCapture(capture1, capture2)
+                    .Then
+                    .Invokes(() => secondClock.Invoke("Third!"))
+                    .WithCapture(capture1, capture2)
+                    .Returns(Task.CompletedTask);
+
+                await clock.Delay(1);
+                await clock.Delay(2);
+                await clock.Delay(3);
+
+                Console.WriteLine("H");
+
+            }
         }
     }
 }

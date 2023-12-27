@@ -70,8 +70,11 @@ namespace FakeItEasy
 
         public void Commit()
         {
-            _values.Add(_valuesPendingCommit.Last());
-            _valuesPendingCommit.Clear();
+            if (_valuesPendingCommit.Any())
+            {
+                _values.Add(_valuesPendingCommit.Last());
+                _valuesPendingCommit.Clear();
+            }
         }
 
         /// <summary>
